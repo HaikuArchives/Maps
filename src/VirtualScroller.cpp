@@ -23,7 +23,7 @@ void VirtualScroller::ValueChanged(float newValue) {
 		BMessage* message = new BMessage(VIRTUAL_SCROLLER);
 	
 		message->AddFloat("value", newValue);
-		messenger.SendMessage(message);	
+		messenger.SendMessage(message);
 		
 		return;
 	}

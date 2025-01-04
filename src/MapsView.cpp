@@ -17,12 +17,13 @@
 
 MapsView::MapsView()
 		: BView("mapsView", B_WILL_DRAW) {
-	bitmap		= NULL;				
+	bitmap		= NULL;
 
 	virtualScroller = new VirtualScroller(this);
 	IsTransformNext = false;
+	IsMouseDown = false;
 
-	MapsData::AddHandler(this);	
+	MapsData::AddHandler(this);
 	MapsData::Retrieve();
 }
 
@@ -35,9 +36,7 @@ void MapsView::AddHandler(BHandler* handle) {
 }
 
 void MapsView::Draw(BRect updateRect){
-	if (bitmap != NULL) {
-		SetViewBitmap(bitmap);
-	}
+	// Nothing to draw, it's all done by SetViewBitmap
 }
 
 void MapsView::MouseDown(BPoint where) {
@@ -46,12 +45,12 @@ void MapsView::MouseDown(BPoint where) {
 	if (mouseClicked == B_PRIMARY_MOUSE_BUTTON) {
 		IsMouseDown = true;
 		pastPoint = where;
-		
+
 		for (std::vector<BHandler*>::iterator it = handler.begin(); it != handler.end(); it++) {
 			BMessenger messenger(*it);
-			messenger.SendMessage(new BMessage(M_MAPSVIEW_ON_FOCUS));		
+			messenger.SendMessage(new BMessage(M_MAPSVIEW_ON_FOCUS));
 		}
-	}	
+	}
 }
 
 void MapsView::MouseUp(BPoint where) {
@@ -97,10 +96,15 @@ void MapsView::MouseMoved(BPoint where, uint32 code, const BMessage* dragMessage
 	}
 }
 
-void MapsView::MessageReceived(BMessage* message) {
-	switch (message->what) {
-		case MAPDATA_UPDATE: {
+
+void MapsView::MessageReceived(BMessage* message)
+{
+	switch (message->what)
+	{
+		case MAPDATA_UPDATE:
+		{
 			bitmap = BTranslationUtils::GetBitmap(MapsData::Get());
+			SetViewBitmap(bitmap);
 			IsTransformNext = false;
 			translatePoint.x = 0;
 			translatePoint.y = 0;
@@ -108,7 +112,8 @@ void MapsView::MessageReceived(BMessage* message) {
 			BAffineTransform transform;
 			SetTransform(transform);
 			Invalidate();
-		}break;
+		}
+		break;
 		case VIRTUAL_SCROLLER: {
 			MapsVector mapsVector0 = MapsData::GetVector();
 			MapsData::SetZoom(20 - (message->GetFloat("value", 0.0) / 3));
@@ -148,9 +153,12 @@ void MapsView::MessageReceived(BMessage* message) {
 			}
 			SetTransform(transform);
 			MapsData::Retrieve();
-		}break;
-		default: {
+		}
+		break;
+		default:
+		{
 			BView::MessageReceived(message);
-		}break;
+		}
+		break;
 	}
 }

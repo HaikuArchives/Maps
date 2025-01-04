@@ -13,7 +13,7 @@
 class Maps : public BApplication {
 public:
 	Maps();
-	~Maps();	
+	~Maps();
 private:
 	MapsWindow* mapsWindow;
 };

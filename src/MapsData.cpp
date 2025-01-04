@@ -23,7 +23,7 @@ public:
 		if (success) {
 			for (std::vector<BHandler*>::iterator it = MapsData::handler.begin(); it != MapsData::handler.end(); it++) {
 				BMessenger messenger(*it);
-				messenger.SendMessage(new BMessage(MAPDATA_UPDATE));		
+				messenger.SendMessage(new BMessage(MAPDATA_UPDATE));
 			}
 		}
 	}
@@ -33,26 +33,32 @@ public:
 // Change this value if you have more accurate value
 #define DEFAULT_BPOINT_SCALE 1.5f
 
-BMallocIO* 				MapsData::data = NULL;
-std::vector<BHandler*>	MapsData::handler;
+BMallocIO* MapsData::data = NULL;
+std::vector<BHandler*> MapsData::handler;
 
-MapsVector 			MapsData::mapsVector;
+MapsVector MapsData::mapsVector;
 
-thread_id			MapsData::thread;
-BPrivate::Network::BUrlRequest*		MapsData::request	= NULL;
-MapsData_Listener*	MapsData::listener	= NULL;
+thread_id MapsData::thread;
+BPrivate::Network::BUrlRequest* MapsData::request = NULL;
+MapsData_Listener* MapsData::listener = NULL;
 
 BString MapsData::baseUrl("https://api.mapbox.com/styles/v1/mapbox/streets-v8/static/%f,%f,%f,%f,%f/%dx%d?access_token=pk.eyJ1IjoicmFlZmFsZGhpYSIsImEiOiJjaXdnN3J0YTkwMTV1MnVraXgzNGowbTBuIn0.9RYCJF1sfuUD86QRuBItYw&attribution=false&logo=false");
 
-MapsData::MapsData() {
+
+MapsData::MapsData()
+{
 
 }
 
-MapsData::~MapsData() {
+
+MapsData::~MapsData()
+{
 
 }
 
-void MapsData::Initialize(int width, int height) {
+
+void MapsData::Initialize(int width, int height)
+{
 	mapsVector.width	 = width;
 	mapsVector.height	 = height;
 
@@ -65,7 +71,9 @@ void MapsData::Initialize(int width, int height) {
 	mapsVector.pitch	 = 0.0f;
 }
 
-void MapsData::SetLongitude(float longitude) {
+
+void MapsData::SetLongitude(float longitude)
+{
 	if (longitude < -180.0) {
 		mapsVector.longitude = 360.0 + longitude;
 	}
@@ -77,7 +85,9 @@ void MapsData::SetLongitude(float longitude) {
 	}
 }
 
-void MapsData::SetLatitude(float latitude) {
+
+void MapsData::SetLatitude(float latitude)
+{
 	if (latitude < -90.0) {
 		mapsVector.latitude = -90.0;
 	}
@@ -89,16 +99,22 @@ void MapsData::SetLatitude(float latitude) {
 	}
 }
 
-void MapsData::SetZoom(float zoom) {
+
+void MapsData::SetZoom(float zoom)
+{
 	mapsVector.zoom = zoom;
 	mapsVector.scale = DEFAULT_BPOINT_SCALE * pow(2.0, mapsVector.zoom);
 }
 
-void MapsData::AddHandler(BHandler* handle) {
+
+void MapsData::AddHandler(BHandler* handle)
+{
 	handler.push_back(handle);
 }
 
-void MapsData::Retrieve() {
+
+void MapsData::Retrieve()
+{
 	if (request != NULL)
 	{
 		request->Stop();
@@ -107,7 +123,7 @@ void MapsData::Retrieve() {
 		delete request;
 		delete listener;
 		
-		request		= NULL;		
+		request		= NULL;
 		listener	= NULL;
 	}
 	BString dataUrl;
@@ -119,10 +135,13 @@ void MapsData::Retrieve() {
 	thread = request->Run();
 }
 
-BMallocIO* MapsData::Get() {
+BMallocIO* MapsData::Get()
+{
 	return data;
 }
 
-MapsVector MapsData::GetVector() {
+
+MapsVector MapsData::GetVector()
+{
 	return mapsVector;
-}	
+}
