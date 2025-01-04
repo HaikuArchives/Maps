@@ -52,9 +52,9 @@ public:
 private:
 	static MapsVector mapsVector;
 
-	static thread_id 			thread;
-	static BUrlRequest*			request;
-	static MapsData_Listener*	listener;
+	static thread_id 						thread;
+	static BPrivate::Network::BUrlRequest*	request;
+	static MapsData_Listener*				listener;
 
 	static BString baseUrl;
 };

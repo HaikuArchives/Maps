@@ -9,8 +9,9 @@
 #include <UrlProtocolRoster.h>
 #include <UrlProtocolListener.h>
 
-class MapsData_Listener : public BUrlProtocolListener, protected MapsData {
+class MapsData_Listener : public BPrivate::Network::BUrlProtocolListener, protected MapsData {
 public:
+	virtual ~MapsData_Listener() = default;
 	MapsData_Listener() {
 		if (MapsData::data != NULL) {
 			delete MapsData::data;
@@ -18,10 +19,7 @@ public:
 		}
 		MapsData::data = new BMallocIO();
 	}
-	virtual void DataReceived(BUrlRequest* caller, const char* _data, off_t position, ssize_t size) {
-		MapsData::data->WriteAt(position, _data, size);
-	}
-	virtual void RequestCompleted(BUrlRequest* caller, bool success) {
+	virtual void RequestCompleted(BPrivate::Network::BUrlRequest* caller, bool success) override {
 		if (success) {
 			for (std::vector<BHandler*>::iterator it = MapsData::handler.begin(); it != MapsData::handler.end(); it++) {
 				BMessenger messenger(*it);
@@ -41,7 +39,7 @@ std::vector<BHandler*>	MapsData::handler;
 MapsVector 			MapsData::mapsVector;
 
 thread_id			MapsData::thread;
-BUrlRequest*		MapsData::request	= NULL;
+BPrivate::Network::BUrlRequest*		MapsData::request	= NULL;
 MapsData_Listener*	MapsData::listener	= NULL;
 
 BString MapsData::baseUrl("https://api.mapbox.com/styles/v1/mapbox/streets-v8/static/%f,%f,%f,%f,%f/%dx%d?access_token=pk.eyJ1IjoicmFlZmFsZGhpYSIsImEiOiJjaXdnN3J0YTkwMTV1MnVraXgzNGowbTBuIn0.9RYCJF1sfuUD86QRuBItYw&attribution=false&logo=false");
@@ -116,7 +114,7 @@ void MapsData::Retrieve() {
 	dataUrl.SetToFormat(baseUrl.String(), mapsVector.longitude, mapsVector.latitude, mapsVector.zoom, mapsVector.bearing, mapsVector.pitch, mapsVector.width, mapsVector.height);
 	
 	listener = new MapsData_Listener();
-	request = BUrlProtocolRoster::MakeRequest(BUrl(dataUrl.String()), listener);
+	request = BPrivate::Network::BUrlProtocolRoster::MakeRequest(BUrl(dataUrl.String()), data, listener);
 
 	thread = request->Run();
 }

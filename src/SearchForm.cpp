@@ -42,7 +42,7 @@ struct SearchResultList_Data {
 	float latitude;
 };
 
-class SearchResultList : public BListView, public BUrlProtocolListener {
+class SearchResultList : public BListView, public BPrivate::Network::BUrlProtocolListener {
 public:
 	SearchResultList();
 	virtual ~SearchResultList();
@@ -53,8 +53,7 @@ public:
 	virtual void MessageReceived(BMessage*);
 	virtual void TargetedByScrollView(BScrollView*);
 
-	virtual void DataReceived(BUrlRequest*, const char*, off_t, ssize_t);
-	virtual void RequestCompleted(BUrlRequest*, bool);
+	virtual void RequestCompleted(BPrivate::Network::BUrlRequest*, bool) override;
 private:
 	static BString baseUrl;
 
@@ -62,7 +61,7 @@ private:
 	BMallocIO* result;
 
 	thread_id thread;
-	BUrlRequest* request;
+	BPrivate::Network::BUrlRequest* request;
 
 	BScrollView *scrollBar;
 	std::map<int, SearchResultList_Data*> itemList;
@@ -217,7 +216,7 @@ void SearchResultList::MessageReceived(BMessage* message) {
 				request = NULL;
 			}
 			result = new BMallocIO();
-			request = BUrlProtocolRoster::MakeRequest(BUrl(url.String()), this);
+			request = BPrivate::Network::BUrlProtocolRoster::MakeRequest(BUrl(url.String()), result, this);
 			thread = request->Run();
 		}break;
 		case M_SEARCHRESULTLIST_ON_SELECT: {
@@ -260,7 +259,7 @@ void SearchResultList::MessageReceived(BMessage* message) {
 				itemData->latitude = mapsVector.latitude;
 				itemList.insert(std::pair<int, SearchResultList_Data*>(0, itemData));
 			}
-			for (e; e != NULL; e = e->NextSiblingElement("place")) {
+			for (; e != NULL; e = e->NextSiblingElement("place")) {
 				AddItem(new BStringItem(e->Attribute("display_name")), index);
 
 				SearchResultList_Data* itemData = new SearchResultList_Data();
@@ -288,11 +287,7 @@ void SearchResultList::TargetedByScrollView(BScrollView* view) {
 	BListView::TargetedByScrollView(view);
 }
 
-void SearchResultList::DataReceived(BUrlRequest* caller, const char* data, off_t position, ssize_t size) {
-	result->WriteAt(position, data, size);
-}
-
-void SearchResultList::RequestCompleted(BUrlRequest* caller, bool success) {
+void SearchResultList::RequestCompleted(BPrivate::Network::BUrlRequest* caller, bool success) {
 	if (success) {
 		Invoke(new BMessage(M_SEARCHRESULTLIST_ON_RESULT));
 	}
