@@ -130,7 +130,7 @@ void MapsData::Retrieve()
 	dataUrl.SetToFormat(baseUrl.String(), mapsVector.longitude, mapsVector.latitude, mapsVector.zoom, mapsVector.bearing, mapsVector.pitch, mapsVector.width, mapsVector.height);
 	
 	listener = new MapsData_Listener();
-	request = BPrivate::Network::BUrlProtocolRoster::MakeRequest(BUrl(dataUrl.String()), data, listener);
+	request = BPrivate::Network::BUrlProtocolRoster::MakeRequest(BUrl(dataUrl.String(), true), data, listener);
 
 	thread = request->Run();
 }

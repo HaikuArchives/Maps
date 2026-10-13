@@ -216,7 +216,7 @@ void SearchResultList::MessageReceived(BMessage* message) {
 				request = NULL;
 			}
 			result = new BMallocIO();
-			request = BPrivate::Network::BUrlProtocolRoster::MakeRequest(BUrl(url.String()), result, this);
+			request = BPrivate::Network::BUrlProtocolRoster::MakeRequest(BUrl(url.String(), true), result, this);
 			thread = request->Run();
 		}break;
 		case M_SEARCHRESULTLIST_ON_SELECT: {
